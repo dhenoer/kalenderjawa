@@ -1,6 +1,6 @@
 # Kalender Jawa dan Weton Jodoh
 
-Perhitungan Kalender Jawa dan Weton Jodoh -- Just For Fun
+Perhitungan Kalender Jawa dan Weton Jodoh
 
 Tersedia dua menu:
 * Kalender Jawa
@@ -15,8 +15,6 @@ versi kalender perhitungan Jawa.
 
 ## Weton Jodoh
 
-Anda diminta menginput 2 Neptu dari masing-masing pasangan jodoh yang ingin digitung wetonnya.
-Program akan menampilkan hasil perhitungan weton tsb.
-
-Catatan:
-Just for fun saja, tidak usah diambil hati.
+Anda diminta menginput 2 Neptu dari masing-masing pasangan jodoh yang ingin 
+dihitung wetonnya, program akan menampilkan ramalan hasil perhitungan weton tsb.
+Yang ini mah __just for fun__ saja ya, tidak usah diambil hati.
