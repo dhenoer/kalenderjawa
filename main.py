@@ -221,7 +221,8 @@ def hitungWetonJodoh(n1, n2):
 def menuWetonJodoh():
     print('\nMenu Weton Jodoh')
     print('Neptu dapat dilihat pada kalender')
-    neptuInput = input('> Input pasangan Neptu (masing2 dpisahkan dengan spasi): ')
+    print('Masukan pasangan masing-masing Neptu dipisah spasi')
+    neptuInput = input('> Input pasangan Neptu (misal 14 8): ')
     pasangan = neptuInput.split()
     try:
         assert len(pasangan) == 2
