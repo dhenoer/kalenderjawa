@@ -202,8 +202,9 @@ def pause():
 
 def menuKalenderJawa():
     print('\nMenu Kalender Jawa')
-    print('Masukan tanggal Masehi dalam format dd/mm/yyyy')
-    print('atau Enter saja untuk tanggal hari ini: ')
+    print('* Masukan tanggal Masehi')
+    print('* Input dalam format dd/mm/yyyy')
+    print('* Blank untuk input tgl hari ini')
     tglInput = input('> Input tanggal: ')
 
     if tglInput == '':
@@ -237,9 +238,10 @@ def hitungWetonJodoh(n1, n2):
 
 def menuWetonJodoh():
     print('\nMenu Weton Jodoh')
-    print('Neptu dapat dilihat pada kalender')
-    print('Input neptu masing2 pasangan dipisahkan dengan spasi')
-    print('Contoh: 13 9')
+    print('* Neptu dapat dilihat pada kalender')
+    print('* Input neptu masing2 pasangan')
+    print('* Input dpisah dengan spasi')
+    print('* Contoh: 13 9')
     neptuInput = input('> Input pasangan neptu : ')
     pasangan = neptuInput.split()
     try:
