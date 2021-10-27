@@ -214,7 +214,8 @@ def menuKalenderJawa():
         tsplit = tglInput.split('/')
         try:
             assert len(tsplit) == 3
-            tglIso = f'{tsplit[2]}-{tsplit[1]}-{tsplit[0]}'
+            tsplit = list(map(int, tsplit))
+            tglIso = f'{tsplit[2]:02d}-{tsplit[1]:02d}-{tsplit[0]:02d}'
             dt.date.fromisoformat(tglIso)
         except Exception as e:
             if e: print('--', e)
