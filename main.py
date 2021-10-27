@@ -1,8 +1,9 @@
 import datetime as dt
 import os, sys
 
-
+# daftar nama-nama bulan
 BULAN = {
+        # key: nama bulan, banyaknya hari, makna
         1: ['Sura', 30, 'Rijal'],
         2: ['Sapar', 29, 'Wiwit'],
         3: ['Mulud', 30, 'Kanda'],
@@ -33,25 +34,29 @@ bulanAlternatif = {
         }
 '''
 
-WINDU = {
+# daftar nama tahun dalam siklus 1 windu
+WINDU_TAHUN = {
+        # key: nama tahun, hari pasaran, banyaknya hari
         1: ['Alip', ('Selasa','Pon'), 354], 
-            #'Purwana, Alip, artinya ada-ada (mulai berniat)'],
         2: ['Ehe', ('Sabtu','Pahing'), 355], 
-            #'Karyana, Ehe, artinya tumandang (imelakukan)'],
         3: ['Jimawal', ('Kamis','Pahing'), 354], 
-            #'Anama, Jemawal, artinya gawe (pekerjaan)'],
         4: ['Je', ('Senin','Legi'), 354], 
-            #'Lalana, Je, artinya lelakon (proses, nasib)'],
         5: ['Dal', ('Jumat','Kliwon'), 355], 
-            #'Ngawana, Dal, artinya urip (hidup)'],
         6: ['Be', ('Rabu','Kliwon'), 354], 
-            #'Pawaka, Be, artinya bola-balik (selalu kembali)'],
         7: ['Wawu', ('Ahad','Wage'), 354], 
-            #'Wasana, Wawu, artinya marang (kearah)'],
         8: ['Jimakir', ('Kamis','Pon'), 355], 
-            #'Swasana, Jimakir, artinya suwung (kosong)']
         }
 
+#1 'Purwana, Alip, artinya ada-ada (mulai berniat)'],
+#2 'Karyana, Ehe, artinya tumandang (imelakukan)'],
+#3 'Anama, Jemawal, artinya gawe (pekerjaan)'],
+#4 'Lalana, Je, artinya lelakon (proses, nasib)'],
+#5 'Ngawana, Dal, artinya urip (hidup)'],
+#6 'Pawaka, Be, artinya bola-balik (selalu kembali)'],
+#7 'Wasana, Wawu, artinya marang (kearah)'],
+#8 'Swasana, Jimakir, artinya suwung (kosong)']
+
+# daftar nama hari dan neptu-nya
 HARI5  = ['Pon', 'Wage', 'Kliwon', 'Legi', 'Pahing']
 NEPTU5 = [7, 4, 8, 5, 9]
 HARI7  = ['Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu', 'Minggu']
@@ -71,16 +76,18 @@ WETON = {
         4: ['Sumur seneba', 'Banyak yang berguru'],
         5: ['Satria wirang', 'Banyak mengalami duka cita'],
         6: ['Bumi kepethak', 'Tabah, banyak kesedihan, pekerja keras'],
-        0: ['Lebu katiyup angin', 'Tidak pernah mencapai cita-cita, mengalami duka nestapa']
+        7: ['Lebu katiyup angin', 'Tidak pernah mencapai cita-cita, mengalami duka nestapa']
         }
 
-# Banyaknya hari dalam 1 windu
-WINDUHARI = 2835 
+# Banyaknya hari dalam 1 kurup dan 1 windu
+MASA_WINDU = 2835
+MASA_KURUP = MASA_WINDU * 15 - 1
 
-# Patokan tahun jawa dan awal windu 1955
-# Patokan konversi : 1 Sura 1955 = 10 Agustus 2021 = Selasa Pon = Alip
-TAHUNPATOKAN = 1955
-ORDTGLPATOKAN = dt.date(2021, 8, 10).toordinal()
+# Patokan awal Kurup 24 Maret 1936 = Selasa Pon Alip 1867  
+# cek 10/08/2021 M = 1 Sura 1955 J, Alip Selasa Pon, Awal Windu
+
+ORD_AWAL_KURUP_1867 = dt.date(1936, 3, 24).toordinal()
+TAHUN_PATOKAN = 1867
 
 # Debugging
 DEBUG = False
@@ -88,141 +95,151 @@ DEBUG = False
 
 def convertMasehi2Jawa(tgl, outputCalendar=True):
 
-    def hitung(ordAwalWindu, hariWindu, hariTahun, tgl):
-        ordHari    = ordAwalWindu + hariWindu + hariTahun + tgl - 1
-        pasaran    = HARI5[abs(ordHari - ordAwalWindu) % 5]
-        tglMasehi  = dt.date.fromordinal(ordHari)
+    def hitung(ordTanggal, ordPatokan):
+        ordHari    = ordTanggal - ordPatokan
+        pasaran    = HARI5[abs(ordHari) % 5]
+        tglMasehi  = dt.date.fromordinal(ordTanggal)
         hariMasehi = HARI7[tglMasehi.weekday()]
 
-        neptu5 = NEPTU5[abs(ordHari - ordAwalWindu) % 5]
+        neptu5 = NEPTU5[abs(ordHari) % 5]
         neptu7 = NEPTU7[tglMasehi.weekday()]
         neptu = neptu5 + neptu7
 
-        return [ordHari, pasaran, hariMasehi, tglMasehi, neptu]
+        return [pasaran, hariMasehi, tglMasehi, neptu]
 
-
+    # tanggal sekarang!
     ordTanggal = tgl.toordinal()
-    ordPatokan = ORDTGLPATOKAN
 
-    jarakHari      = ordTanggal - ordPatokan
-    jarakWindu     = jarakHari // WINDUHARI
-    jarakHariWindu = jarakHari % WINDUHARI
-    ordAwalWindu   = ordPatokan + jarakWindu * WINDUHARI
+    # proses mendapatkan awal kurup, awal windu 
+    jarakAwalKurup1867 = ordTanggal - ORD_AWAL_KURUP_1867
+    jarakAwalKurup  = jarakAwalKurup1867 % MASA_KURUP
+    deltaKurup      = jarakAwalKurup1867 // MASA_KURUP
+    jarakAwalWindu  = jarakAwalKurup % MASA_WINDU
+    deltaWindu      = jarakAwalKurup // MASA_WINDU
+    ordAwalWindu    = ordTanggal - jarakAwalWindu
 
-    if DEBUG:
-        print('ordTanggal', ordTanggal)
-        print('ordPtokan', ordPatokan)
-        print('jarakHari', jarakHari)
-        print('jarakWindu', jarakWindu)
-        print('jarakHariWindu', jarakHariWindu)
-        print('ordAwalWindu', ordAwalWindu)
+    # proses mendapatkan awal tahun 
+    # iterasi tahun
+    ordHari = ordAwalWindu
+    for k, tahun in WINDU_TAHUN.items():
 
-    hariWindu = 0
-    for k,w in WINDU.items():
+        # akumulasi hari
+        if ordHari + tahun[2] < ordTanggal:
+            ordHari += tahun[2]
 
-        if hariWindu + w[2] > jarakHariWindu:
+        # ketemu tahunnya
+        else:
+            # proses mendapatkan awal bulan
+            # iterasi bulan
+            for q, bulan in BULAN.items():
 
-            tahunWindu = k
-            hariTahun  = 0
+                # set banyaknya hari
+                # untuk bulan besar (akhir tahun),
+                # disesuaikan dg banyaknya hari dlm satu tahun
+                nhari = bulan[1]
+                if q == 12 and tahun[2] == 355:
+                    nhari = 30
 
-            for q,b in BULAN.items():
+                # akumulasi haru
+                if ordHari + nhari < ordTanggal:
+                    ordHari += bulan[1] 
+            
+                # ketemu bulannya
+                else:
 
-                maxHariBulan = (w[2] - hariTahun) if q==12 else b[1]
-                
-                if hariWindu + hariTahun + maxHariBulan >= jarakHariWindu:
-
-                    bulanTahun = q
-                    tahunJawa = TAHUNPATOKAN + jarakWindu*8 + tahunWindu - 1 
-
+                    # cetak kalendar
                     if outputCalendar:
+
+                        tahunJawa = TAHUN_PATOKAN + \
+                            deltaKurup * 120 + \
+                            deltaWindu * 8 + k - 1
 
                         print()
                         print('Kalender Jawa')
                         print('`````````````')
-                        print('Bulan {}.{} (Tahun {} {})'.format(q, 
-                            b[0], w[0], tahunJawa))
-
-                        if DEBUG:
-                            print('hariWindu', hariWindu)
-                            print('hariTahun', hariTahun)
-                            print('maxHariBulan', maxHariBulan)
+                        print(f'Bulan {q}.{bulan[0]}')
+                        print(f'Tahun {tahun[0]} {tahunJawa}')
 
                         print()
-                        print('Tanggal Pasaran  Hari/Tanggal Masehi Neptu')
-                        print('------- -------- ------------------- -----')
+                        print('Tgl Pasaran  Hari/Tgl Masehi   Neptu')
+                        print('--- -------- ----------------- -----')
 
-                        for tgl in range(1, maxHariBulan+1):
+                        for tgl in range(1, nhari+1):
 
-                            if tgl == 16:
-                                input('> Enter untuk lanjut..')
+                            if tgl > 1 and (tgl-1) % 10 == 0:
+                                pause()
+                            ord = ordHari + tgl -1
+                            hasil = hitung(ord, ORD_AWAL_KURUP_1867)
 
-                            hasil = hitung(ordAwalWindu, hariWindu, hariTahun, tgl)
+                            pasaran    = hasil[0]
+                            hariMasehi = hasil[1]
+                            tglMasehi  = hasil[2]
+                            neptu      = hasil[3]
 
-                            ordHari    = hasil[0]
-                            pasaran    = hasil[1]
-                            hariMasehi = hasil[2]
-                            tglMasehi  = hasil[3]
-                            neptu      = hasil[4]
-
-                            print(f'{tgl:>5d}   ', end='')
+                            print(f'{tgl:>2d}  ', end='')
                             print(f'{pasaran:8s} ', end='')
                             print(f'{hariMasehi:6s}', tglMasehi.strftime('%d/%m/%Y'), end='')
-                            print(f'{neptu:>6d}', end='')
+                            print(f'{neptu:>4d}', end='')
 
-                            if ordHari == ordTanggal:
-                                print(' <---')
+                            #print(ord, ordTanggal, end='')
+                            if ord == ordTanggal:
+                                print(' <--')
                             else:
                                 print()
 
-
+                    # hanya konversi
                     else:
-
-                        hasil = hitung(ordAwalWindu, hariWindu, hariTahun, 1)
-                        ordHasil = hasil[0]
-                        deltaHari = ordTanggal - ordHasil +1
-                        hasil = hitung(ordAwalWindu, hariWindu, hariTahun, deltaHari)
+                        ord   = ordTanggal
+                        hasil = hitung(ord, ORD_AWAL_KURUP_1867)
                         return hasil
 
                     break
-                else:
-                    hariTahun += b[1]
             break
+    pause()
 
-        else:
-            hariWindu += w[2]
-
-    input('> Enter untuk lanjut..')
-
+def pause():
+    input('-- Enter untuk lanjut..')
 
 def menuKalenderJawa():
     print('\nMenu Kalender Jawa')
-    tglInput = input('> Input tanggal dalam format dd/mm/yyyy: ')
-    tsplit = tglInput.split('/')
-    try:
-        assert len(tsplit) == 3
-        newtgl = f'{tsplit[2]}-{tsplit[1]}-{tsplit[0]}'
-        dt.date.fromisoformat(newtgl)
-        if newtgl:
-            convertMasehi2Jawa(dt.date.fromisoformat(newtgl))
-    except Exception as e:
-        print('--', e)
-        input('-- Error format tanggal, Enter untuk lanjut..')
+    print('Masukan tanggal Masehi dalam format dd/mm/yyyy')
+    print('atau Enter saja untuk tanggal hari ini: ')
+    tglInput = input('> Input tanggal: ')
+
+    if tglInput == '':
+        tglSkr = dt.date.today()
+        tglIso = tglSkr.isoformat()
+
+    else:
+        tsplit = tglInput.split('/')
+        try:
+            assert len(tsplit) == 3
+            tglIso = f'{tsplit[2]}-{tsplit[1]}-{tsplit[0]}'
+            dt.date.fromisoformat(tglIso)
+        except Exception as e:
+            if e: print('--', e)
+            print('-- Error format tanggal')
+            pause()
+            return
+    # tglIso ready to convert
+    convertMasehi2Jawa(dt.date.fromisoformat(tglIso))
 
 
 def hitungWetonJodoh(n1, n2):
     weton = (n1 + n2) % 7
+    if weton == 0: weton = 7
+
     print('\nHasil penghitungan Weton pasangan:')
-    print(f'"{WETON[weton][0]}"')
-    print(WETON[weton][1])
-
-    input('\n> Enter untuk lanjut..')
-
+    print(f'{weton} : {WETON[weton][0]}')
+    print(f'"{WETON[weton][1]}"')
+    pause()
 
 def menuWetonJodoh():
     print('\nMenu Weton Jodoh')
     print('Neptu dapat dilihat pada kalender')
-    print('Masukan pasangan masing-masing Neptu dipisah spasi')
-    neptuInput = input('> Input pasangan Neptu (misal 14 8): ')
+    print('Input neptu masing2 pasangan dipisahkan dengan spasi')
+    print('Contoh: 13 9')
+    neptuInput = input('> Input pasangan neptu : ')
     pasangan = neptuInput.split()
     try:
         assert len(pasangan) == 2
@@ -233,8 +250,9 @@ def menuWetonJodoh():
         hitungWetonJodoh(n1, n2)
 
     except Exception as e:
-        print('--', e)
-        input('-- Error, format/range neptu tidak valid. Enter untuk lanjut..')
+        if e: print('--', e)
+        print('-- Error, format/range neptu tidak valid')
+        pause()
 
 
 
@@ -250,7 +268,7 @@ while True:
     print('Menu:')
     print('1. Kalender Jawa')
     print('2. Weton Jodoh')
-    print('x. Keluar')
+    print('X. Keluar')
 
     opsi = input('> Pilihan: ')
 
@@ -261,6 +279,5 @@ while True:
     elif opsi and opsi in 'xX':
         break
     else:
-        input('-- Error tidak ada pilihan. Enter untuk lanjut..')
-
-
+        print('-- Error tidak ada pilihan')
+        pause()
