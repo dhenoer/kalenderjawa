@@ -18,3 +18,10 @@ versi kalender perhitungan Jawa.
 Anda diminta menginput 2 Neptu dari masing-masing pasangan jodoh yang ingin 
 dihitung wetonnya, program akan menampilkan ramalan hasil perhitungan weton tsb.
 Yang ini mah __just for fun__ saja ya, tidak usah diambil hati.
+
+## Tangkapan Video
+
+Tangkapan layar video dapat dilihat pada laman Facebook
+
+https://web.facebook.com/dhenoer/videos/387937249674054
+
